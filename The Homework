@@ -1,0 +1,644 @@
+Q1)
+
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+typedef struct Node Node;
+
+Node* createNode(int data) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = data;
+    newNode->next = NULL;
+    return newNode;
+}
+
+void insertAtBeginning(Node** head, int data) {
+    Node* newNode = createNode(data);
+    newNode->next = *head;
+    *head = newNode;
+}
+
+void insertAtEnd(Node** head, int data) {
+    Node* newNode = createNode(data);
+    if (*head == NULL) {
+        *head = newNode;
+    } else {
+        Node* current = *head;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = newNode;
+    }
+}
+
+void printList(Node* head) {
+    Node* current = head;
+    while (current != NULL) {
+        printf("%d ", current->data);
+        current = current->next;
+    }
+    printf("\n");
+}
+
+int main() {
+    Node* head = NULL;
+    int num;
+    
+    printf("Enter numbers (enter -1 to stop): ");
+    
+    while (1) {
+        scanf("%d", &num);
+        if (num == -1) {
+            break;
+        }
+        
+        if (num % 2 == 1) {
+            insertAtBeginning(&head, num);
+        } else {
+           
+            insertAtEnd(&head, num);
+        }
+    }
+
+    printf("Resulting List: ");
+    printList(head);
+
+    while (head != NULL) {
+        Node* temp = head;
+        head = head->next;
+        free(temp);
+    }
+
+    return 0;
+}
+
+Q2) 
+
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+typedef struct Node Node;
+
+Node* createNode(int data) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = data;
+    newNode->next = NULL;
+    return newNode;
+}
+
+void insertAtBeginning(Node** head, int data) {
+    Node* newNode = createNode(data);
+    newNode->next = *head;
+    *head = newNode;
+}
+
+void printList(Node* head) {
+    Node* current = head;
+    while (current != NULL) {
+        printf("%d", current->data);
+        if (current->next != NULL) {
+            printf("->");
+        }
+        current = current->next;
+    }
+    printf("\n");
+}
+
+Node* partition(Node* head, Node* end, Node** newHead, Node** newEnd) {
+    Node* pivot = end;
+    Node* prev = NULL;
+    Node* current = head;
+    Node* tail = pivot;
+
+    while (current != pivot) {
+        if (current->data > pivot->data) {
+            if ((*newHead) == NULL) {
+                (*newHead) = current;
+            }
+            prev = current;
+            current = current->next;
+        } else {
+            if (prev) {
+                prev->next = current->next;
+            }
+            Node* temp = current->next;
+            current->next = NULL;
+            tail->next = current;
+            tail = current;
+            current = temp;
+        }
+    }
+
+    if ((*newHead) == NULL) {
+        (*newHead) = pivot;
+    }
+    (*newEnd) = tail;
+    return pivot;
+}
+
+Node* quickSortRecur(Node* head, Node* end) {
+    if (!head || head == end) {
+        return head;
+    }
+
+    Node* newHead = NULL;
+    Node* newEnd = NULL;
+
+    Node* pivot = partition(head, end, &newHead, &newEnd);
+
+    if (newHead != pivot) {
+        Node* temp = newHead;
+        while (temp->next != pivot) {
+            temp = temp->next;
+        }
+        temp->next = NULL;
+        newHead = quickSortRecur(newHead, temp);
+        temp = findTail(newHead); // Renamed function
+        temp->next = pivot;
+    }
+
+    pivot->next = quickSortRecur(pivot->next, newEnd);
+    return newHead;
+}
+
+Node* findTail(Node* head) { // Renamed function
+    while (head != NULL && head->next != NULL) {
+        head = head->next;
+    }
+    return head;
+}
+
+Node* quickSort(Node* head) {
+    Node* tail = findTail(head); // Renamed function
+    return quickSortRecur(head, tail); // Renamed function
+}
+
+int main() {
+    Node* head = NULL;
+    int num;
+
+    printf("Enter 100 random numbers: ");
+    
+    for (int i = 0; i < 100; i++) {
+        num = rand() % 100; // Generates a random number between 0 and 99
+        insertAtBeginning(&head, num);
+    }
+
+    printf("Unsorted List: ");
+    printList(head);
+
+    head = quickSort(head);
+
+    printf("Sorted List (largest to smallest): ");
+    printList(head);
+
+    // Free allocated memory
+    while (head != NULL) {
+        Node* temp = head;
+        head = head->next;
+        free(temp);
+    }
+
+    return 0;
+
+Q3)
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Student {
+    int studentNumber;
+    char name[50];
+    int age;
+    struct Student* next;
+};
+
+typedef struct Student Student;
+
+Student* createStudent(int studentNumber, const char* name, int age) {
+    Student* newStudent = (Student*)malloc(sizeof(Student));
+    newStudent->studentNumber = studentNumber;
+    strcpy(newStudent->name, name);
+    newStudent->age = age;
+    newStudent->next = NULL;
+    return newStudent;
+}
+
+void insertAtEnd(Student** head, int studentNumber, const char* name, int age) {
+    Student* newStudent = createStudent(studentNumber, name, age);
+    if (*head == NULL) {
+        *head = newStudent;
+    } else {
+        Student* current = *head;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = newStudent;
+    }
+}
+
+void printStudents(Student* head) {
+    int studentCount = 0;
+    Student* current = head;
+
+    while (current != NULL) {
+        printf("%d- %s %d %d\n", current->studentNumber, current->name, current->age, studentCount + 1);
+        studentCount++;
+        current = current->next;
+    }
+
+    printf("Total students: %d\n", studentCount);
+}
+
+void searchStudentByName(Student* head, const char* targetName) {
+    Student* current = head;
+    int studentCount = 0;
+
+    while (current != NULL) {
+        if (strcmp(current->name, targetName) == 0) {
+            printf("%d- %s %d %d\n", current->studentNumber, current->name, current->age, studentCount + 1);
+        }
+
+        studentCount++;
+        current = current->next;
+    }
+
+    if (studentCount == 0) {
+        printf("No records found for '%s'.\n", targetName);
+    }
+}
+
+int main() {
+    Student* head = NULL;
+    int studentNumber;
+    char name[50];
+    int age;
+
+    printf("Enter student information (student number, name, age), or -1 to stop:\n");
+    
+    while (1) {
+        printf("Student number: ");
+        scanf("%d", &studentNumber);
+
+        if (studentNumber == -1) {
+            break;
+        }
+
+        printf("Name: ");
+        scanf("%s", name);
+
+        printf("Age: ");
+        scanf("%d", &age);
+
+        insertAtEnd(&head, studentNumber, name, age);
+    }
+
+    printf("Student Information:\n");
+    printStudents(head);
+
+    printf("Enter a name to search for: ");
+    scanf("%s", name);
+    
+    printf("Search Results:\n");
+    searchStudentByName(head, name);
+
+
+    while (head != NULL) {
+        Student* temp = head;
+        head = head->next;
+        free(temp);
+    }
+
+    return 0;
+}
+
+Q4)
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Student {
+    int studentNumber;
+    char name[50];
+    int age;
+    struct Student* next;
+};
+
+typedef struct Student Student;
+
+Student* createStudent(int studentNumber, const char* name, int age) {
+    Student* newStudent = (Student*)malloc(sizeof(Student));
+    newStudent->studentNumber = studentNumber;
+    strcpy(newStudent->name, name);
+    newStudent->age = age;
+    newStudent->next = NULL;
+    return newStudent;
+}
+
+void insertAtEnd(Student** head, int studentNumber, const char* name, int age) {
+    Student* newStudent = createStudent(studentNumber, name, age);
+    if (*head == NULL) {
+        *head = newStudent;
+    } else {
+        Student* current = *head;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = newStudent;
+    }
+}
+
+void printStudents(Student* head) {
+    int studentCount = 0;
+    Student* current = head;
+
+    while (current != NULL) {
+        printf("%d- %s %d %d\n", current->studentNumber, current->name, current->age, studentCount + 1);
+        studentCount++;
+        current = current->next;
+    }
+
+    printf("Total students: %d\n", studentCount);
+}
+
+void searchStudentByName(Student* head, const char* targetName) {
+    Student* current = head;
+    int studentCount = 0;
+
+    while (current != NULL) {
+        if (strcmp(current->name, targetName) == 0) {
+            printf("%d- %s %d %d\n", current->studentNumber, current->name, current->age, studentCount + 1);
+        }
+
+        studentCount++;
+        current = current->next;
+    }
+
+    if (studentCount == 0) {
+        printf("No records found for '%s'.\n", targetName);
+    }
+}
+
+int main() {
+    Student* head = NULL;
+    int studentNumber;
+    char name[50];
+    int age;
+
+    printf("Enter student information (student number, name, age), or -1 to stop:\n");
+    
+    while (1) {
+        printf("Student number: ");
+        scanf("%d", &studentNumber);
+
+        if (studentNumber == -1) {
+            break;
+        }
+
+        printf("Name: ");
+        scanf("%s", name);
+
+        printf("Age: ");
+        scanf("%d", &age);
+
+        insertAtEnd(&head, studentNumber, name, age);
+    }
+
+    printf("Student Information:\n");
+    printStudents(head);
+
+    printf("Enter a name to search for: ");
+    scanf("%s", name);
+    
+    printf("Search Results:\n");
+    searchStudentByName(head, name);
+
+
+    while (head != NULL) {
+        Student* temp = head;
+        head = head->next;
+        free(temp);
+    }
+
+    return 0;
+}
+
+Q5)
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Student {
+    int studentNumber;
+    char name[50];
+    int age;
+    struct Student* next;
+};
+
+typedef struct Student Student;
+
+Student* createStudent(int studentNumber, const char* name, int age) {
+    Student* newStudent = (Student*)malloc(sizeof(Student));
+    newStudent->studentNumber = studentNumber;
+    strcpy(newStudent->name, name);
+    newStudent->age = age;
+    newStudent->next = NULL;
+    return newStudent;
+}
+
+void insertAtEnd(Student** head, int studentNumber, const char* name, int age) {
+    Student* newStudent = createStudent(studentNumber, name, age);
+    if (*head == NULL) {
+        *head = newStudent;
+    } else {
+        Student* current = *head;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = newStudent;
+    }
+}
+
+void printStudents(Student* head) {
+    int studentCount = 0;
+    Student* current = head;
+
+    while (current != NULL) {
+        printf("%d- %s %d %d\n", current->studentNumber, current->name, current->age, studentCount + 1);
+        studentCount++;
+        current = current->next;
+    }
+
+    printf("Total students: %d\n", studentCount);
+}
+
+void searchStudentByName(Student* head, const char* targetName) {
+    Student* current = head;
+    int studentCount = 0;
+
+    while (current != NULL) {
+        if (strcmp(current->name, targetName) == 0) {
+            printf("%d- %s %d %d\n", current->studentNumber, current->name, current->age, studentCount + 1);
+        }
+
+        studentCount++;
+        current = current->next;
+    }
+
+    if (studentCount == 0) {
+        printf("No records found for '%s'.\n", targetName);
+    }
+}
+
+void deleteNextStudent(Student* head, const char* targetName) {
+    Student* current = head;
+
+    while (current != NULL) {
+        if (current->next != NULL && strcmp(current->name, targetName) == 0) {
+            Student* temp = current->next;
+            current->next = temp->next;
+            free(temp);
+            return;
+        }
+        current = current->next;
+    }
+}
+
+int main() {
+    Student* head = NULL;
+    int studentNumber;
+    char name[50];
+    int age;
+
+    printf("Enter student information (student number, name, age), or -1 to stop:\n");
+    
+    while (1) {
+        printf("Student number: ");
+        scanf("%d", &studentNumber);
+
+        if (studentNumber == -1) {
+            break;
+        }
+
+        printf("Name: ");
+        scanf("%s", name);
+
+        printf("Age: ");
+        scanf("%d", &age);
+
+        insertAtEnd(&head, studentNumber, name, age);
+    }
+
+    printf("Student Information:\n");
+    printStudents(head);
+
+    printf("Enter a name to search for: ");
+    scanf("%s", name);
+    
+    printf("Search Results:\n");
+    searchStudentByName(head, name);
+
+    printf("Deleting the next student record for '%s'.\n", name);
+    deleteNextStudent(head, name);
+
+    printf("Updated Student Information:\n");
+    printStudents(head);
+
+    while (head != NULL) {
+        Student* temp = head;
+        head = head->next;
+        free(temp);
+    }
+
+    return 0;
+}
+
+Q6)
+
+  }
+}
+
+void printStudents(Student* head) {
+    int studentCount = 0;
+    Student* current = head;
+
+    while (current != NULL) {
+        printf("%d- %s %d %d\n", current->studentNumber, current->name, current->age, studentCount + 1);
+        studentCount++;
+        current = current->next;
+    }
+
+    printf("Total students: %d\n", studentCount);
+}
+
+void findLongestName(Student* head) {
+    Student* current = head;
+    char longestName[50];
+    int maxLength = 0;
+
+    while (current != NULL) {
+        int currentLength = strlen(current->name);
+        if (currentLength > maxLength) {
+            maxLength = currentLength;
+            strcpy(longestName, current->name);
+        }
+        current = current->next;
+    }
+
+    printf("The longest name in the list: %s\n", longestName);
+    printf("Length: %d\n", maxLength);
+}
+
+int main() {
+    Student* head = NULL;
+    int studentNumber;
+    char name[50];
+    int age;
+
+    printf("Enter student information (student number, name, age), or -1 to stop:\n");
+    
+    while (1) {
+        printf("Student number: ");
+        scanf("%d", &studentNumber);
+
+        if (studentNumber == -1) {
+            break;
+        }
+
+        printf("Name: ");
+        scanf("%s", name);
+
+        printf("Age: ");
+        scanf("%d", &age);
+
+        insertAtEnd(&head, studentNumber, name, age);
+    }
+
+    printf("Student Information:\n");
+    printStudents(head);
+
+    printf("Finding the longest name in the list:\n");
+    findLongestName(head);
+
+  
+    while (head != NULL) {
+        Student* temp = head;
+        head = head->next;
+        free(temp);
+    }
+
+    return 0;
+}
